@@ -35,7 +35,7 @@ class DecisionTree():
 
     
 
-        if num_samples >= self.min_sample_splits and curr_depth <= self.max_depth:
+        if num_samples >= self.min_sample_split and curr_depth <= self.max_depth:
             best_split = self.get_best_split(dataset, num_samples, num_features)
 
             if best_split['info_gain'] > 0:
@@ -46,8 +46,8 @@ class DecisionTree():
                 return Node(best_split['feature_index'], best_split['threshold'], left_subtree, right_subtree,
                 best_split['info_gain'])
 
-            leaf_value = self.calculate_leaf_value(Y)
-            return Node(value=leaf_value)
+        leaf_value = self.calculate_leaf_val(Y)
+        return Node(value=leaf_value)
 
 
     def get_best_split(self, dataset, num_samples, num_features):
@@ -99,8 +99,9 @@ class DecisionTree():
     def entropy(self, y):
         class_labels = np.unique(y)
         ent = 0
+
         for cls in class_labels:
-            p_cls = len([y==cls]) / len(y)
+            p_cls = len(y[y==cls]) / len(y)
             ent += -p_cls * np.log2(cls)
         return (ent)
     
@@ -119,7 +120,7 @@ class DecisionTree():
         Y = list(Y)
         return(max(Y, key=Y.count))
     
-    def print_tree(self, tree, indent='   '):
+    def print_tree(self, tree=None, indent=' '):
         if not tree:
             tree = self.root
 
@@ -138,14 +139,16 @@ class DecisionTree():
         self.root = self.build_tree(dataset)
 
     def predict(self, X):
-        predictions = [self.make_prediction(X, self.root) for x in X]
+        predictions = [self.make_prediction(x, self.root) for x in X]
         return predictions
     
     def make_prediction(self, x, tree):
+        
         if tree.value!=None: return tree.value
         feature_val = x[tree.feature_index]
         if feature_val<=tree.threshold:
             return self.make_prediction(x, tree.left)
         else:
             return self.make_prediction(x, tree.right)
-    
+
+
